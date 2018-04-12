@@ -18,7 +18,7 @@ START:                  ; first instruction of program
 *Add additional validation values as required
 *-------------------------------------------------------
 exit        EQU 0      used to exit assembly program
-min_feed    EQU 100    min feed requirement
+min_feed    EQU 10    min feed requirement
 min_horses  EQU 1      min number of horses
 max_horses  EQU 9      max number of horses
 min_soldier EQU 6      min soldiers
@@ -27,7 +27,10 @@ max_charge  EQU 5      max rate e.g. Flank
 hit_point   EQU 5      points accumilated on castle (objective) strike
 miss_point  EQU 8      points deducted for ordinace miss
 
-players_feed EQU 0      players current amount of feed
+players_feed EQU 100      players current amount of feed
+players_cash equ 1000     players current amount of cash
+players_soldier EQU 10    players current amount of soldiers
+players_horses EQU 5      player current amount of horss
 
 mine_loc    EQU 100    example for a hit
 
@@ -132,16 +135,15 @@ feed:
     
     move.b  #14,D0
     trap    #15
-    
-    move.b #4,D0
-    trap    #15
-    
-    move.b d1,d3
-    
-    move.b d3,d1
+   
+    move.b d3, d1
     
     move #3,d0
     trap #15
+    
+    move #9,d0
+    trap #15
+
     
     bsr     decorate
     rts
