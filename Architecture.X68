@@ -10,7 +10,7 @@ START:                  ; first instruction of program
     org $1000
 
 *-------------------------------------------------------
-*Choose to be Evil Crimson Wizard or the knights of Dio
+*Choose to be Evil Wizard or the noobs
 *-------------------------------------------------------
 
 *-------------------------------------------------------
@@ -31,6 +31,8 @@ players_feed EQU 100      players current amount of feed
 players_cash equ 1000     players current amount of cash
 players_soldier EQU 10    players current amount of soldiers
 players_horses EQU 5      player current amount of horss
+
+distance_to_mission EQU 50 distance to th mission
 
 mine_loc    EQU 100    example for a hit
 
@@ -74,7 +76,6 @@ welcome:
 input:
     bsr     feed            branch to feed input subroutine
     bsr     horses          branch to ship input subroutine
-    bsr     rate            branch to rate (charging speed) input subroutine
     bsr     distance        branch to mission distance/location input subroutine
     bsr     soldiers        branch to soldiers input subroutine
     rts
@@ -102,8 +103,7 @@ gameloop:
 *------------------------------------------------------- 
 update:
     bsr     endl            print a CR and LF
-    bsr     decorate        decorate with dots using a loop
-    lea     update_msg,A1   
+    bsr     decorate        decorate with dots using a loop  
     move.b  #14,D0
     trap    #15
     bsr     decorate
@@ -116,7 +116,6 @@ update:
 draw:
     bsr     endl
     bsr     decorate
-    lea     draw_msg,A1
     move.b  #14,D0
     trap    #15
     bsr     decorate
@@ -131,17 +130,17 @@ feed:
     bsr     decorate
     lea     feed_msg,A1
     
-    move.b  players_feed, d3
+    move.b  #players_feed, d2
     
     move.b  #14,D0
     trap    #15
    
-    move.b d3, d1
+    move.b d2, d1
     
     move #3,d0
     trap #15
     
-    move #9,d0
+    move #4,d0
     trap #15
 
     
@@ -156,24 +155,23 @@ horses:
     bsr     endl
     bsr     decorate
     lea     horses_msg,A1
+    
+    move.b  #players_horses, d3
+    
     move.b  #14,D0
     trap    #15
+   
+    move.b d3, d1
+    
+    move #3,d0
+    trap #15
+    
+    move #4,d0
+    trap #15
     
     bsr     decorate
     rts
 
-*-------------------------------------------------------
-*-------------------Horse(s) Charge Speed---------------
-* horses speed to and from a mission
-*------------------------------------------------------- 
-rate:
-    bsr     endl
-    bsr     decorate
-    lea     rate_msg,A1
-    move.b  #14,D0
-    trap    #15
-    bsr     decorate
-    rts
 
 *-------------------------------------------------------
 *------------------Mission Distance---------------------
@@ -183,8 +181,20 @@ distance:
     bsr     endl
     bsr     decorate
     lea     distance_msg,A1
+    
+    move.b  #distance_to_mission, d6
+    
     move.b  #14,D0
     trap    #15
+   
+    move.b d6, d1
+    
+    move #3,d0
+    trap #15
+    
+    move #4,d0
+    trap #15
+
     bsr     decorate
     rts
 
@@ -196,8 +206,20 @@ soldiers:
     bsr     endl
     bsr     decorate
     lea     soldiers_msg,A1
+    
+    move.b  #players_soldier, d5
+    
     move.b  #14,D0
     trap    #15
+   
+    move.b d5, d1
+    
+    move #3,d0
+    trap #15
+    
+    move #4,d0
+    trap #15
+
     bsr     decorate
     rts
 
@@ -207,7 +229,7 @@ soldiers:
 gameplay:
     bsr     endl
     bsr     decorate
-    lea     gameplay_msg,A1
+
     move.b  #14,D0
     trap    #15
     bsr     decorate
@@ -310,40 +332,27 @@ endl:
     rts
     
 *-------------------------------------------------------
-*-------------------Data Delarations--------------------
+*-------------------Data Declarations--------------------
 *-------------------------------------------------------
 
 crlf:           dc.b    $0D,$0A,0
 welcome_msg:    dc.b    '************************************************************'
                 dc.b    $0D,$0A
-                dc.b    'Castle botherers 7'
+                dc.b    'Castle game'
                 dc.b    $0D,$0A
                 dc.b    '************************************************************'
                 dc.b    $0D,$0A,0
 feed_msg:       dc.b    'Feed load (each horse needs at least 100 units of feed)'
                 dc.b    $0D,$0A
-                dc.b    'Enter feed load : ',0
-horses_msg:      dc.b    'Number of horses : ',0
-rate_msg:       dc.b    'One Third[1], Two Thirds[2], Standard Charge[3], ' 
-                dc.b    $0D,$0A
-                dc.b    'Full Charge[4], Flank Charge[5] units feed per click'
-                dc.b    $0D,$0A
-                dc.b    'Enter Speed : ',0
-distance_msg:   dc.b    'Mission distance e.g. 40 (with 100 units of feed  '
-                dc.b    $0D,$0A
-                dc.b    'One Third speed 20 units remain for manuvouirs) horses '
+                dc.b    'starting feed load : ',0
+horses_msg:     dc.b    'Number of horses : ',0
+distance_msg:   dc.b    'One Third speed 20 units remain for manuvouirs) horses '
                 dc.b    $0D,$0A
                 dc.b    'Horses without feed are lost.'
                 dc.b    $0D,$0A
-                dc.b    'Enter mission distance : ',0
-soldiers_msg:       dc.b    'Each horse needs at least 1 Knight and 1 Stable Hand'
-                dc.b    $0D,$0A
-                dc.b    'minimum requirement is 2 i.e. Stable Hand x 1 and Knight x 1.'
-                dc.b    $0D,$0A
-                dc.b    'Enter # of soldiers : ',0
-gameplay_msg:   dc.b    'Add Gameplay !',0
-update_msg:     dc.b    'Update Gameplay !',0
-draw_msg:       dc.b    'Draw Screen !',0
+                dc.b    'mission distance : ',0
+soldiers_msg:   dc.b    'starting number of soldiers : ',0
+
 hit_msg:        dc.b    'Strike!',0
 miss_msg:       dc.b    'Miss!',0
 loop_msg:       dc.b    '.',0
@@ -353,9 +362,12 @@ hud_msg:        dc.b    'Score : ',0
 health:     ds.w    1
 score:      ds.w    1 reserve space for score
 
+starting_msg dc.b 'You are in the Town of Salem' ,0 
+
     end start
 
     END    START        ; last line of source
+
 
 
 
